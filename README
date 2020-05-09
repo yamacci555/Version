@@ -1,0 +1,273 @@
+<< How to use git >>
+
+GitとGithubの基礎
+Git
+GitHub
+コマンドライン
+Git ってそもそも何のためにあるのか。
+
+それは『プログラムのソースコードなどの変更履歴を記録・追跡するための分散型バージョン管理システム』のこと。（Wikipediaより参照）
+
+主に下記2点がGitを使うメリットと言えるのではないでしょうか。
+・バージョン管理（何か変な変更を行なった時に、元に戻せる）
+・チーム開発で共有
+
+2つのリポジトリ
+Gitにはローカルリポジトリとリモートリポジトリと呼ばれる2つのリポジトリがあります。
+
+ローカルリポジトリとは、基本的に自分のコンピュータに存在する自分だけが管理するリポジトリで、リモートリポジトリが専用のサーバーなどにあり、複数人で管理するものです。
+
+基本はローカルリポジトリで作業して、一区切りついたらリモートリポジトリに反映させる流れになります。
+
+ローカルリポジトリ
+Gitの3つの階層
+Gitの流れに進む前に、Gitには3つの階層があることを理解しておきたい。
+
+・Working Directory （作業フォルダ）
+・Stage （一時保存的な保留分？）
+・History （編集の履歴）
+
+
+=============================================================
+
+Gitバージョン管理の流れ
+では実際どのような流れなのかを見ていきます。
+
+まず、ディレクトリを作成。
+
+mkdir Version
+新しく作成したVersion ディレクトリに移動。
+
+cd Version
+新しいテキストファイルを作成して、テキストファイルを編集。
+
+touch text1.txt
+open text1.txt
+同じように、text2.txt を作成・編集。
+
+touch text2.txt
+open text2.txt
+gitを初期化する
+
+git init
+gitの状況をみる
+
+git status
+先ほど述べたworking directoryから、stageにファイルをaddする。時短する場合は
+全てのファイルをaddする 『git add .』でも大丈夫。
+
+git add text1.txt
+git add text2.txt
+（ちなみに stage にあるファイルを消す場合は、こう。念のため）
+
+git rm --cahed -r <file名>
+messageをつけて、stageからHistoryにcommitする
+
+git commit -m "First commit of texts"
+commitの履歴を表示し、誰がいつcommitしたのかをみる
+
+git log
+text2.txtを編集して保存してしまったが、やっぱり元に戻したい。そんな時は、まず編集前（Historyにあるもの）と編集後（working directoryにあるもの）のtext2.txtの変更点を表示させる。
+
+git diff text2.txt
+変更点を確認し、「よし、戻そう。」となった時は、Historyにあるtext2.txtをworking directoryにroll backする。その場合、working directoryにあった編集済みのtext2.txtは上書きされて無くなってしまうため、注意。
+
+git checkout text2.txt
+gitignoreを使用してファイルをgitに入れない
+ここまでで、ファイルをgitに追加していく方法を見てきました。でも、パスワードを含むテキストファイルなどgitに追加したくないファイルってありますよね。そんな時に使用できるのがgitignoreです。
+
+まず、ディレクトリ内で.gitignoreというファイルを作成します。
+
+touch .gitignore
+Finder上では見れない、隠しファイルも表示する
+
+ls -a
+このままgit add . してしまうと全てのファイルがaddされてしまいますので、.gitignore内にaddしないファイルを記載していきます。
+
+今回は、下記のファイルをaddしないように設定します。
+- DS_Store
+- passwords.txt
+
+スクリーンショット 2020-01-20 12.53.14.png
+
+これで、git add . としても.gitignoreに記載したファイルはaddされなくなりました。ちなみに、.gitignoreのファイル自体はaddされるので注意。
+
+gitignoreのコピペ集
+.gitignoreのファイル内で『*.txt』と記載すると、全ての.txtファイルを対象とすることができる。
+
+これを利用して、githubではその言語ごとに必要ではないファイルをまとめたものがあり、それを.gitignoreにコピペするだけで良い便利なテンプレート集がある。
+
+https://github.com/github/gitignore
+
+リモートリポジトリ
+Github へのpush
+ここまではローカル環境上でのGitを見てきましたが、実際はGithubも使っていくことが主流です。
+
+先ほど作成した Version フォルダとその中に格納されている text1.txt と text2.txt をGithubにpushしていきます。
+
+Githubで新しいRepositryを作成する。
+
+スクリーンショット 2020-01-19 08.11.30.png
+
+するとこんな画面に変わります。
+
+スクリーンショット 2020-01-19 08.12.51.png
+
+次にコマンドラインで作業をしていたVersionフォルダを開きます。上記画像の...or push an existing repository from the command lineの部分をコマンドラインにコピペします。
+
+git remote add origin https://github.com/kibinag0/Version.git
+origin という名前のremote git をaddしますってことですね。
+
+そして、ローカルのHistoryにある部分をoriginというremote gitにpushします。マスターとしてね。
+
+git push -u origin master
+ここで、githubのユーザー名やパスワードの入力を求められます。
+
+するとGithubにちゃんと Historyにあったものがpushされ、反映されています。
+
+Githubからクローンする
+先ほどは、Githubへのpushを見ましたが、今度は、Githubからクローン（ダウンロード）する方法です。
+
+まずGithubでクローンしたいプロジェクトを見つけ、「Clone or download」をクリックします。
+
+スクリーンショット 2020-01-20 13.26.52.png
+
+すると、https:// ~ とURLが出てくるので、それをコピーして、下記のようにコマンドラインで貼り付けます。
+
+git clone https://github.com/kibinag0/Version.git
+すると現在いるディレクトリにクローンされたものが保存されます。
+
+Githubの Branch & Merge
+Branchは、枝や枝分かれのことで、Mergeとは、枝分かれしていたものが再度合流すること。
+
+たとえば、ある機能を追加しようとして、枝分かれしたbranchで作業していたが実装できたのでメインのbranchに合流するということができるのです。まぁ便利。複数人で作業していく時にも使えますね。
+
+image.png
+
+画像引用 Backlog.comより。
+
+新しいbranchを作成し、add, commit
+まず、branchを作成する。今回はそのbranch名を 「add-feature」としてみましょう。
+
+git branch add-feature
+自分がどのbranchにいるのかをみる。
+
+git branch 
+*がついている方のbranchに自分はいます。毎回確認するようにしましょう。
+
+そして、現在はmaster branch にいたので、新規作成した add-feature branchに移動しましょう。
+
+git checkout add-feature
+add-feature branch で変更を行ったと仮定します。今回はfeature.txtファイルを作成しました。そしたら、add-feature branchとしてcommitしましょう。
+
+git add .
+git commit -m "added new feature"
+これでadd-feature branch にてcommitすることができました。一応自分がどのbranchにいるか確認。
+
+git branch
+master branch でも変更を加えてみる
+それでは、master branch に移動しましょう。
+
+git checkout master
+master branchに移動すると、先ほど add-feature branch で変更した点が"反映されていない"ことが分かります。
+
+分かりやすくするため、こちらでも変更を加えてみましょう。text3.txtを作成します。
+
+Merge
+現時点でのファイル状況
+
+master branch	add-feature branch
+・text1.txt
+・text2.txt
+・text3.txt	・text1.txt
+・text2.txt
+・feature.txt
+この状況で、add-feature branch を master branchにmerge（合併します。）
+
+まずmaster branchに移動します。
+
+git checkout master
+add-feature branch をmaster branch に結合させる
+
+git merge add-feature
+そうするとこうなります。
+
+スクリーンショット 2020-01-20 14.49.31.png
+
+そして、ファイル的には、すべてが反映されます。
+masterにあるファイル一覧。
+・text1.txt
+・text2.txt
+・text3.txt
+・feature.txt
+
+すごい、なかなか上手くできなかった。頑張った。特に、add-feature branchで変更して、add, commitせずに、master branchにcheckoutで戻ってしまうとその時点でmaster branchにmergeされてしまう見たいなので、add-featureで変更したら、必ずadd, commitした方が良い。ということを学びました。
+
+ブランチの消去
+ローカルでのブランチの消去の仕方。
+
+$ git branch --delete [ブランチ名]
+リモート上のブランチの消去
+
+$ git push --delete origin [ブランチ名]
+Fork と Pull を使いこなす
+Clone → Github上のrepositryを自分のローカルに落とす
+Fork → Github上のrepositryを自分のGithubにコピーする
+Pull → Forkしたプロジェクトに変更を加え、Fork元に反映をリクエストする
+
+自分にそのRepositryを編集する権限がある際は、cloneして、add, commit, pushすれば良いのだが、誰でもその権限を持っている訳ではない。そんな時は、Forkでそのプロジェクト自体を自分のGithubにコピーし、編集し、Pullリクエストで、元プロジェクトの所有者に『こんな編集しましたよ、もしよければ反映したらどうでしょう』みたいに申請することです。オープンソースプロジェクトとかでよく使用される方法みたいです。
+
+具体的な方法は下記を参考
+
+https://qiita.com/YumaInaura/items/acff806290c8953d3185
+
+fork元の最新ブランチを自分のリモートリポジトリに反映
+https://www.zunouissiki.com/entry/2019/01/06/074419
+
+Gitのコマンド概要一覧
+・touch
+新しいファイルの作成
+
+・git log
+コミットの履歴。
+
+・git diff --cached
+image.png
+
+historyとstageの差分が git diff --cached
+stageとworking directoryの差分が git diff
+
+https://qiita.com/konweb/items/621722f67fdd8f86a017#%E5%B7%AE%E5%88%86%E3%82%92%E7%A2%BA%E8%AA%8D%E3%81%99%E3%82%8B
+
+・git branch ブランチ名
+branchの作成
+
+・git checkout ブランチ名
+ブランチの変更
+
+・git merge ブランチ名
+マスターに戻ってから、ブランチをマージする
+
+git checkout master
+git merge ブランチ名
+
+・git clone リポジトリ名
+cloneする
+
+・git push origin master
+リモートリポジトリにpushする
+
+・git pull origin master
+リモートリポジトリからpullする
+
+・git reset
+git add の修正
+
+・git revert
+git commit の修正
+
+以上で、GitとGithubのまとめ完了。
+
+（参照）Udemyの Web Development Bootcamp 2020
+
+
